@@ -3,7 +3,7 @@ import axios from "axios";
 import "./App.css";
 
 function App() {
-  const backendUrl = process.env.REACT_APP_BACKEND_URL; // backend URL from .env
+  const backendUrl = process.env.REACT_APP_BACKEND_URL; // e.g., https://creativity-backend.onrender.com/api
 
   // ===== USERS STATE =====
   const [users, setUsers] = useState([]);
@@ -35,7 +35,7 @@ function App() {
       const res = await axios.get(`${backendUrl}/users`);
       setUsers(res.data);
     } catch (err) {
-      console.error("Error fetching users:", err);
+      console.error("Error fetching users:", err.message);
     }
   };
 
@@ -45,7 +45,7 @@ function App() {
       const res = await axios.get(`${backendUrl}/creativity-paths`);
       setPaths(res.data);
     } catch (err) {
-      console.error("Error fetching paths:", err);
+      console.error("Error fetching paths:", err.message);
     }
   };
 
@@ -72,7 +72,7 @@ function App() {
       setUserForm({ name: "", email: "", contact_number: "", discipline: "" });
       fetchUsers();
     } catch (err) {
-      console.error("Error adding user:", err);
+      console.error("Error adding user:", err.message);
     }
   };
 
@@ -81,9 +81,8 @@ function App() {
     try {
       await axios.delete(`${backendUrl}/users/${id}`);
       fetchUsers();
-      fetchPaths(); // refresh paths in case user was linked
     } catch (err) {
-      console.error("Error deleting user:", err);
+      console.error("Error deleting user:", err.message);
     }
   };
 
@@ -106,7 +105,7 @@ function App() {
       });
       fetchPaths();
     } catch (err) {
-      console.error("Error adding path:", err);
+      console.error("Error adding path:", err.message);
     }
   };
 
@@ -116,7 +115,7 @@ function App() {
       await axios.delete(`${backendUrl}/creativity-paths/${id}`);
       fetchPaths();
     } catch (err) {
-      console.error("Error deleting path:", err);
+      console.error("Error deleting path:", err.message);
     }
   };
 
@@ -149,12 +148,7 @@ function App() {
         <section className="paths-section">
           <h2>Creativity Paths</h2>
           <form onSubmit={addPath}>
-            <select name="user_id" value={pathForm.user_id} onChange={handlePathChange} required>
-              <option value="">Select User</option>
-              {users.map(user => (
-                <option key={user.id} value={user.id}>{user.name}</option>
-              ))}
-            </select>
+            <input name="user_id" value={pathForm.user_id} onChange={handlePathChange} placeholder="User ID" required />
             <input name="misfit" value={pathForm.misfit} onChange={handlePathChange} placeholder="Misfit" />
             <input name="recall" value={pathForm.recall} onChange={handlePathChange} placeholder="Recall" />
             <input name="flow" value={pathForm.flow} onChange={handlePathChange} placeholder="Flow" />
@@ -169,8 +163,7 @@ function App() {
           <ul className="paths-list">
             {paths.map(path => (
               <li key={path.id}>
-                <strong>User:</strong> {users.find(u => u.id === path.user_id)?.name || path.user_id}, 
-                <strong> Misfit:</strong> {path.misfit}, <strong>Flow:</strong> {path.flow}
+                <strong>User ID:</strong> {path.user_id}, <strong>Misfit:</strong> {path.misfit}, <strong>Flow:</strong> {path.flow}
                 <button onClick={() => deletePath(path.id)}>Delete</button>
               </li>
             ))}
