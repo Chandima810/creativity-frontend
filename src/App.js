@@ -30,17 +30,23 @@ function App() {
   });
 
   // ===== FETCH USERS =====
-  const fetchUsers = () => {
-    axios.get(`${backendUrl}/users`)
-      .then(res => setUsers(res.data))
-      .catch(err => console.error(err));
+  const fetchUsers = async () => {
+    try {
+      const res = await axios.get(`${backendUrl}/users`);
+      setUsers(res.data);
+    } catch (err) {
+      console.error("Error fetching users:", err);
+    }
   };
 
   // ===== FETCH CREATIVITY PATHS =====
-  const fetchPaths = () => {
-    axios.get(`${backendUrl}/creativity-paths`)
-      .then(res => setPaths(res.data))
-      .catch(err => console.error(err));
+  const fetchPaths = async () => {
+    try {
+      const res = await axios.get(`${backendUrl}/creativity-paths`);
+      setPaths(res.data);
+    } catch (err) {
+      console.error("Error fetching paths:", err);
+    }
   };
 
   // Fetch data on mount
@@ -59,50 +65,59 @@ function App() {
   };
 
   // ===== ADD USER =====
-  const addUser = (e) => {
+  const addUser = async (e) => {
     e.preventDefault();
-    axios.post(`${backendUrl}/users`, userForm)
-      .then(() => {
-        setUserForm({ name: "", email: "", contact_number: "", discipline: "" });
-        fetchUsers();
-      })
-      .catch(err => console.error(err));
+    try {
+      await axios.post(`${backendUrl}/users`, userForm);
+      setUserForm({ name: "", email: "", contact_number: "", discipline: "" });
+      fetchUsers();
+    } catch (err) {
+      console.error("Error adding user:", err);
+    }
   };
 
   // ===== DELETE USER =====
-  const deleteUser = (id) => {
-    axios.delete(`${backendUrl}/users/${id}`)
-      .then(() => fetchUsers())
-      .catch(err => console.error(err));
+  const deleteUser = async (id) => {
+    try {
+      await axios.delete(`${backendUrl}/users/${id}`);
+      fetchUsers();
+      fetchPaths(); // refresh paths in case user was linked
+    } catch (err) {
+      console.error("Error deleting user:", err);
+    }
   };
 
   // ===== ADD CREATIVITY PATH =====
-  const addPath = (e) => {
+  const addPath = async (e) => {
     e.preventDefault();
-    axios.post(`${backendUrl}/creativity-paths`, pathForm)
-      .then(() => {
-        setPathForm({
-          user_id: "",
-          misfit: "",
-          recall: "",
-          flow: "",
-          wide_path: "",
-          spark: "",
-          strategic_flow: "",
-          narrow_path: "",
-          bright_spark: "",
-          ahh: ""
-        });
-        fetchPaths();
-      })
-      .catch(err => console.error(err));
+    try {
+      await axios.post(`${backendUrl}/creativity-paths`, pathForm);
+      setPathForm({
+        user_id: "",
+        misfit: "",
+        recall: "",
+        flow: "",
+        wide_path: "",
+        spark: "",
+        strategic_flow: "",
+        narrow_path: "",
+        bright_spark: "",
+        ahh: ""
+      });
+      fetchPaths();
+    } catch (err) {
+      console.error("Error adding path:", err);
+    }
   };
 
   // ===== DELETE CREATIVITY PATH =====
-  const deletePath = (id) => {
-    axios.delete(`${backendUrl}/creativity-paths/${id}`)
-      .then(() => fetchPaths())
-      .catch(err => console.error(err));
+  const deletePath = async (id) => {
+    try {
+      await axios.delete(`${backendUrl}/creativity-paths/${id}`);
+      fetchPaths();
+    } catch (err) {
+      console.error("Error deleting path:", err);
+    }
   };
 
   return (
@@ -134,7 +149,12 @@ function App() {
         <section className="paths-section">
           <h2>Creativity Paths</h2>
           <form onSubmit={addPath}>
-            <input name="user_id" value={pathForm.user_id} onChange={handlePathChange} placeholder="User ID" required />
+            <select name="user_id" value={pathForm.user_id} onChange={handlePathChange} required>
+              <option value="">Select User</option>
+              {users.map(user => (
+                <option key={user.id} value={user.id}>{user.name}</option>
+              ))}
+            </select>
             <input name="misfit" value={pathForm.misfit} onChange={handlePathChange} placeholder="Misfit" />
             <input name="recall" value={pathForm.recall} onChange={handlePathChange} placeholder="Recall" />
             <input name="flow" value={pathForm.flow} onChange={handlePathChange} placeholder="Flow" />
@@ -149,7 +169,8 @@ function App() {
           <ul className="paths-list">
             {paths.map(path => (
               <li key={path.id}>
-                <strong>User ID:</strong> {path.user_id}, <strong>Misfit:</strong> {path.misfit}, <strong>Flow:</strong> {path.flow}
+                <strong>User:</strong> {users.find(u => u.id === path.user_id)?.name || path.user_id}, 
+                <strong> Misfit:</strong> {path.misfit}, <strong>Flow:</strong> {path.flow}
                 <button onClick={() => deletePath(path.id)}>Delete</button>
               </li>
             ))}
