@@ -8,7 +8,7 @@
 
 /* Main content container */
 .App-container {
-  max-width: 1200px;
+  max-width: 1000px;
   margin: 0 auto;
   background-color: #ffffff;
   padding: 20px 30px;
@@ -27,7 +27,7 @@ form {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
 }
 
 form input, form select, form button {
@@ -49,78 +49,53 @@ form button:hover {
   background-color: #0056b3;
 }
 
-/* ===== Users List ===== */
-.users-list ul {
+/* ===== Users & Paths Lists ===== */
+.users-list, .paths-list {
   list-style: none;
   padding: 0;
 }
 
-.users-list li {
+.users-list li, .paths-list li {
   background-color: #f0f4f8;
   margin-bottom: 6px;
   padding: 8px 12px;
   border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   transition: background-color 0.2s ease;
 }
 
-.users-list li:hover {
+.users-list li:hover, .paths-list li:hover {
   background-color: #e2e8f0;
 }
 
-/* ===== Creativity Paths Table ===== */
-.creativity-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 40px;
-}
-
-.creativity-table th, .creativity-table td {
-  border: 1px solid #ddd;
-  padding: 10px;
-  text-align: left;
-}
-
-.creativity-table th {
-  background-color: #007bff;
+.users-list button, .paths-list button {
+  background-color: #ff4d4f;
   color: #fff;
-  position: sticky;
-  top: 0;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
 }
 
-.creativity-table tr:nth-child(even) {
-  background-color: #f9f9f9;
+.users-list button:hover, .paths-list button:hover {
+  background-color: #d9363e;
 }
 
-.creativity-table tr:hover {
-  background-color: #e2f0ff;
-}
-
-/* Responsive table for small screens */
+/* Responsive adjustments */
 @media (max-width: 768px) {
-  .creativity-table, .creativity-table thead, .creativity-table tbody, .creativity-table th, .creativity-table td, .creativity-table tr {
-    display: block;
+  form {
+    flex-direction: column;
   }
 
-  .creativity-table th {
-    position: relative;
+  .users-list li, .paths-list li {
+    flex-direction: column;
+    align-items: flex-start;
   }
 
-  .creativity-table tr {
-    margin-bottom: 15px;
-  }
-
-  .creativity-table td {
-    text-align: right;
-    padding-left: 50%;
-    position: relative;
-  }
-
-  .creativity-table td::before {
-    content: attr(data-label);
-    position: absolute;
-    left: 10px;
-    width: calc(50% - 20px);
-    font-weight: bold;
-    text-align: left;
+  .users-list button, .paths-list button {
+    margin-top: 6px;
   }
 }

@@ -1,18 +1,20 @@
-// src/App.js
-
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./App.css";
 
 function App() {
+  const backendUrl = process.env.REACT_APP_BACKEND_URL; // backend URL from .env
+
+  // ===== USERS STATE =====
   const [users, setUsers] = useState([]);
   const [userForm, setUserForm] = useState({
     name: "",
     email: "",
     contact_number: "",
-    discipline: "Engineering",
+    discipline: ""
   });
 
+  // ===== CREATIVITY PATHS STATE =====
   const [paths, setPaths] = useState([]);
   const [pathForm, setPathForm] = useState({
     user_id: "",
@@ -24,220 +26,136 @@ function App() {
     strategic_flow: "",
     narrow_path: "",
     bright_spark: "",
-    ahh: "",
+    ahh: ""
   });
 
-  const backendUrl = "http://localhost:5000"; // your backend URL
-
-  // Fetch users
-  const fetchUsers = async () => {
-    try {
-      const res = await axios.get(`${backendUrl}/users`);
-      setUsers(res.data);
-    } catch (err) {
-      console.error(err);
-    }
+  // ===== FETCH USERS =====
+  const fetchUsers = () => {
+    axios.get(`${backendUrl}/users`)
+      .then(res => setUsers(res.data))
+      .catch(err => console.error(err));
   };
 
-  // Fetch creativity paths
-  const fetchPaths = async () => {
-    try {
-      const res = await axios.get(`${backendUrl}/creativity-paths`);
-      setPaths(res.data);
-    } catch (err) {
-      console.error(err);
-    }
+  // ===== FETCH CREATIVITY PATHS =====
+  const fetchPaths = () => {
+    axios.get(`${backendUrl}/creativity-paths`)
+      .then(res => setPaths(res.data))
+      .catch(err => console.error(err));
   };
 
+  // Fetch data on mount
   useEffect(() => {
     fetchUsers();
     fetchPaths();
   }, []);
 
-  // Handle user form submit
-  const handleUserSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await axios.post(`${backendUrl}/users`, userForm);
-      setUserForm({ name: "", email: "", contact_number: "", discipline: "Engineering" });
-      fetchUsers();
-    } catch (err) {
-      console.error(err);
-    }
+  // ===== HANDLE FORM CHANGES =====
+  const handleUserChange = (e) => {
+    setUserForm({ ...userForm, [e.target.name]: e.target.value });
   };
 
-  // Handle creativity path form submit
-  const handlePathSubmit = async (e) => {
+  const handlePathChange = (e) => {
+    setPathForm({ ...pathForm, [e.target.name]: e.target.value });
+  };
+
+  // ===== ADD USER =====
+  const addUser = (e) => {
     e.preventDefault();
-    try {
-      await axios.post(`${backendUrl}/creativity-paths`, pathForm);
-      setPathForm({
-        user_id: "",
-        misfit: "",
-        recall: "",
-        flow: "",
-        wide_path: "",
-        spark: "",
-        strategic_flow: "",
-        narrow_path: "",
-        bright_spark: "",
-        ahh: "",
-      });
-      fetchPaths();
-    } catch (err) {
-      console.error(err);
-    }
+    axios.post(`${backendUrl}/users`, userForm)
+      .then(() => {
+        setUserForm({ name: "", email: "", contact_number: "", discipline: "" });
+        fetchUsers();
+      })
+      .catch(err => console.error(err));
+  };
+
+  // ===== DELETE USER =====
+  const deleteUser = (id) => {
+    axios.delete(`${backendUrl}/users/${id}`)
+      .then(() => fetchUsers())
+      .catch(err => console.error(err));
+  };
+
+  // ===== ADD CREATIVITY PATH =====
+  const addPath = (e) => {
+    e.preventDefault();
+    axios.post(`${backendUrl}/creativity-paths`, pathForm)
+      .then(() => {
+        setPathForm({
+          user_id: "",
+          misfit: "",
+          recall: "",
+          flow: "",
+          wide_path: "",
+          spark: "",
+          strategic_flow: "",
+          narrow_path: "",
+          bright_spark: "",
+          ahh: ""
+        });
+        fetchPaths();
+      })
+      .catch(err => console.error(err));
+  };
+
+  // ===== DELETE CREATIVITY PATH =====
+  const deletePath = (id) => {
+    axios.delete(`${backendUrl}/creativity-paths/${id}`)
+      .then(() => fetchPaths())
+      .catch(err => console.error(err));
   };
 
   return (
-    <div className="App App-container">
-      <h1>Creativity App</h1>
+    <div className="App">
+      <div className="App-container">
+        <h1>Creativity App</h1>
 
-      {/* ===== Add User Form ===== */}
-      <h2>Add User</h2>
-      <form onSubmit={handleUserSubmit}>
-        <input
-          placeholder="Name"
-          value={userForm.name}
-          onChange={(e) => setUserForm({ ...userForm, name: e.target.value })}
-          required
-        />
-        <input
-          placeholder="Email"
-          type="email"
-          value={userForm.email}
-          onChange={(e) => setUserForm({ ...userForm, email: e.target.value })}
-          required
-        />
-        <input
-          placeholder="Contact Number"
-          value={userForm.contact_number}
-          onChange={(e) => setUserForm({ ...userForm, contact_number: e.target.value })}
-        />
-        <select
-          value={userForm.discipline}
-          onChange={(e) => setUserForm({ ...userForm, discipline: e.target.value })}
-        >
-          <option>Engineering</option>
-          <option>Medicine</option>
-          <option>Art</option>
-          <option>Business</option>
-        </select>
-        <button type="submit">Add User</button>
-      </form>
+        {/* ===== USERS SECTION ===== */}
+        <section className="users-section">
+          <h2>Users</h2>
+          <form onSubmit={addUser}>
+            <input name="name" value={userForm.name} onChange={handleUserChange} placeholder="Name" required />
+            <input name="email" value={userForm.email} onChange={handleUserChange} placeholder="Email" required />
+            <input name="contact_number" value={userForm.contact_number} onChange={handleUserChange} placeholder="Contact Number" />
+            <input name="discipline" value={userForm.discipline} onChange={handleUserChange} placeholder="Discipline" />
+            <button type="submit">Add User</button>
+          </form>
+          <ul className="users-list">
+            {users.map(user => (
+              <li key={user.id}>
+                {user.name} ({user.email})
+                <button onClick={() => deleteUser(user.id)}>Delete</button>
+              </li>
+            ))}
+          </ul>
+        </section>
 
-      {/* ===== Users List ===== */}
-      <div className="users-list">
-        <h2>Users List</h2>
-        <ul>
-          {users.map((user) => (
-            <li key={user.id}>
-              {user.name} - {user.email} - {user.discipline}
-            </li>
-          ))}
-        </ul>
+        {/* ===== CREATIVITY PATHS SECTION ===== */}
+        <section className="paths-section">
+          <h2>Creativity Paths</h2>
+          <form onSubmit={addPath}>
+            <input name="user_id" value={pathForm.user_id} onChange={handlePathChange} placeholder="User ID" required />
+            <input name="misfit" value={pathForm.misfit} onChange={handlePathChange} placeholder="Misfit" />
+            <input name="recall" value={pathForm.recall} onChange={handlePathChange} placeholder="Recall" />
+            <input name="flow" value={pathForm.flow} onChange={handlePathChange} placeholder="Flow" />
+            <input name="wide_path" value={pathForm.wide_path} onChange={handlePathChange} placeholder="Wide Path" />
+            <input name="spark" value={pathForm.spark} onChange={handlePathChange} placeholder="Spark" />
+            <input name="strategic_flow" value={pathForm.strategic_flow} onChange={handlePathChange} placeholder="Strategic Flow" />
+            <input name="narrow_path" value={pathForm.narrow_path} onChange={handlePathChange} placeholder="Narrow Path" />
+            <input name="bright_spark" value={pathForm.bright_spark} onChange={handlePathChange} placeholder="Bright Spark" />
+            <input name="ahh" value={pathForm.ahh} onChange={handlePathChange} placeholder="Ahh" />
+            <button type="submit">Add Path</button>
+          </form>
+          <ul className="paths-list">
+            {paths.map(path => (
+              <li key={path.id}>
+                <strong>User ID:</strong> {path.user_id}, <strong>Misfit:</strong> {path.misfit}, <strong>Flow:</strong> {path.flow}
+                <button onClick={() => deletePath(path.id)}>Delete</button>
+              </li>
+            ))}
+          </ul>
+        </section>
       </div>
-
-      {/* ===== Add Creativity Path Form ===== */}
-      <h2>Add Creativity Path</h2>
-      <form onSubmit={handlePathSubmit}>
-        <select
-          value={pathForm.user_id}
-          onChange={(e) => setPathForm({ ...pathForm, user_id: e.target.value })}
-          required
-        >
-          <option value="">Select User</option>
-          {users.map((user) => (
-            <option key={user.id} value={user.id}>
-              {user.name}
-            </option>
-          ))}
-        </select>
-        <input
-          placeholder="Misfit"
-          value={pathForm.misfit}
-          onChange={(e) => setPathForm({ ...pathForm, misfit: e.target.value })}
-        />
-        <input
-          placeholder="Recall"
-          value={pathForm.recall}
-          onChange={(e) => setPathForm({ ...pathForm, recall: e.target.value })}
-        />
-        <input
-          placeholder="Flow"
-          value={pathForm.flow}
-          onChange={(e) => setPathForm({ ...pathForm, flow: e.target.value })}
-        />
-        <input
-          placeholder="Wide Path"
-          value={pathForm.wide_path}
-          onChange={(e) => setPathForm({ ...pathForm, wide_path: e.target.value })}
-        />
-        <input
-          placeholder="Spark"
-          value={pathForm.spark}
-          onChange={(e) => setPathForm({ ...pathForm, spark: e.target.value })}
-        />
-        <input
-          placeholder="Strategic Flow"
-          value={pathForm.strategic_flow}
-          onChange={(e) => setPathForm({ ...pathForm, strategic_flow: e.target.value })}
-        />
-        <input
-          placeholder="Narrow Path"
-          value={pathForm.narrow_path}
-          onChange={(e) => setPathForm({ ...pathForm, narrow_path: e.target.value })}
-        />
-        <input
-          placeholder="Bright Spark"
-          value={pathForm.bright_spark}
-          onChange={(e) => setPathForm({ ...pathForm, bright_spark: e.target.value })}
-        />
-        <input
-          placeholder="Ahh!"
-          value={pathForm.ahh}
-          onChange={(e) => setPathForm({ ...pathForm, ahh: e.target.value })}
-        />
-        <button type="submit">Add Path</button>
-      </form>
-
-      {/* ===== Creativity Paths List ===== */}
-      <h2>Creativity Paths List</h2>
-      <table className="creativity-table">
-        <thead>
-          <tr>
-            <th>User</th>
-            <th>Misfit</th>
-            <th>Recall</th>
-            <th>Flow</th>
-            <th>Wide Path</th>
-            <th>Spark</th>
-            <th>Strategic Flow</th>
-            <th>Narrow Path</th>
-            <th>Bright Spark</th>
-            <th>Ahh!</th>
-          </tr>
-        </thead>
-        <tbody>
-          {paths.map((path) => {
-            const user = users.find((u) => u.id === path.user_id);
-            return (
-              <tr key={path.id}>
-                <td>{user ? user.name : path.user_id}</td>
-                <td>{path.misfit}</td>
-                <td>{path.recall}</td>
-                <td>{path.flow}</td>
-                <td>{path.wide_path}</td>
-                <td>{path.spark}</td>
-                <td>{path.strategic_flow}</td>
-                <td>{path.narrow_path}</td>
-                <td>{path.bright_spark}</td>
-                <td>{path.ahh}</td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
     </div>
   );
 }
