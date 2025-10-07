@@ -3,7 +3,7 @@ import axios from "axios";
 import "./App.css";
 
 function App() {
-  const backendUrl = process.env.REACT_APP_BACKEND_URL; // e.g., https://creativity-backend.onrender.com/api
+  const backendUrl = process.env.REACT_APP_BACKEND_URL; // Example: https://creativity-backend.onrender.com/api
 
   // ===== USERS STATE =====
   const [users, setUsers] = useState([]);
@@ -11,7 +11,7 @@ function App() {
     name: "",
     email: "",
     contact_number: "",
-    discipline: ""
+    discipline: "",
   });
 
   // ===== CREATIVITY PATHS STATE =====
@@ -26,7 +26,7 @@ function App() {
     strategic_flow: "",
     narrow_path: "",
     bright_spark: "",
-    ahh: ""
+    ahh: "",
   });
 
   // ===== FETCH USERS =====
@@ -101,7 +101,7 @@ function App() {
         strategic_flow: "",
         narrow_path: "",
         bright_spark: "",
-        ahh: ""
+        ahh: "",
       });
       fetchPaths();
     } catch (err) {
@@ -128,14 +128,37 @@ function App() {
         <section className="users-section">
           <h2>Users</h2>
           <form onSubmit={addUser}>
-            <input name="name" value={userForm.name} onChange={handleUserChange} placeholder="Name" required />
-            <input name="email" value={userForm.email} onChange={handleUserChange} placeholder="Email" required />
-            <input name="contact_number" value={userForm.contact_number} onChange={handleUserChange} placeholder="Contact Number" />
-            <input name="discipline" value={userForm.discipline} onChange={handleUserChange} placeholder="Discipline" />
+            <input
+              name="name"
+              value={userForm.name}
+              onChange={handleUserChange}
+              placeholder="Name"
+              required
+            />
+            <input
+              name="email"
+              value={userForm.email}
+              onChange={handleUserChange}
+              placeholder="Email"
+              required
+            />
+            <input
+              name="contact_number"
+              value={userForm.contact_number}
+              onChange={handleUserChange}
+              placeholder="Contact Number"
+            />
+            <input
+              name="discipline"
+              value={userForm.discipline}
+              onChange={handleUserChange}
+              placeholder="Discipline"
+            />
             <button type="submit">Add User</button>
           </form>
+
           <ul className="users-list">
-            {users.map(user => (
+            {users.map((user) => (
               <li key={user.id}>
                 {user.name} ({user.email})
                 <button onClick={() => deleteUser(user.id)}>Delete</button>
@@ -148,25 +171,90 @@ function App() {
         <section className="paths-section">
           <h2>Creativity Paths</h2>
           <form onSubmit={addPath}>
-            <input name="user_id" value={pathForm.user_id} onChange={handlePathChange} placeholder="User ID" required />
-            <input name="misfit" value={pathForm.misfit} onChange={handlePathChange} placeholder="Misfit" />
-            <input name="recall" value={pathForm.recall} onChange={handlePathChange} placeholder="Recall" />
-            <input name="flow" value={pathForm.flow} onChange={handlePathChange} placeholder="Flow" />
-            <input name="wide_path" value={pathForm.wide_path} onChange={handlePathChange} placeholder="Wide Path" />
-            <input name="spark" value={pathForm.spark} onChange={handlePathChange} placeholder="Spark" />
-            <input name="strategic_flow" value={pathForm.strategic_flow} onChange={handlePathChange} placeholder="Strategic Flow" />
-            <input name="narrow_path" value={pathForm.narrow_path} onChange={handlePathChange} placeholder="Narrow Path" />
-            <input name="bright_spark" value={pathForm.bright_spark} onChange={handlePathChange} placeholder="Bright Spark" />
-            <input name="ahh" value={pathForm.ahh} onChange={handlePathChange} placeholder="Ahh" />
+            {/* User Selection Dropdown */}
+            <select
+              name="user_id"
+              value={pathForm.user_id}
+              onChange={handlePathChange}
+              required
+            >
+              <option value="">-- Select User --</option>
+              {users.map((user) => (
+                <option key={user.id} value={user.id}>
+                  {user.name} ({user.email})
+                </option>
+              ))}
+            </select>
+
+            <input
+              name="misfit"
+              value={pathForm.misfit}
+              onChange={handlePathChange}
+              placeholder="Misfit"
+            />
+            <input
+              name="recall"
+              value={pathForm.recall}
+              onChange={handlePathChange}
+              placeholder="Recall"
+            />
+            <input
+              name="flow"
+              value={pathForm.flow}
+              onChange={handlePathChange}
+              placeholder="Flow"
+            />
+            <input
+              name="wide_path"
+              value={pathForm.wide_path}
+              onChange={handlePathChange}
+              placeholder="Wide Path"
+            />
+            <input
+              name="spark"
+              value={pathForm.spark}
+              onChange={handlePathChange}
+              placeholder="Spark"
+            />
+            <input
+              name="strategic_flow"
+              value={pathForm.strategic_flow}
+              onChange={handlePathChange}
+              placeholder="Strategic Flow"
+            />
+            <input
+              name="narrow_path"
+              value={pathForm.narrow_path}
+              onChange={handlePathChange}
+              placeholder="Narrow Path"
+            />
+            <input
+              name="bright_spark"
+              value={pathForm.bright_spark}
+              onChange={handlePathChange}
+              placeholder="Bright Spark"
+            />
+            <input
+              name="ahh"
+              value={pathForm.ahh}
+              onChange={handlePathChange}
+              placeholder="Ahh"
+            />
             <button type="submit">Add Path</button>
           </form>
+
           <ul className="paths-list">
-            {paths.map(path => (
-              <li key={path.id}>
-                <strong>User ID:</strong> {path.user_id}, <strong>Misfit:</strong> {path.misfit}, <strong>Flow:</strong> {path.flow}
-                <button onClick={() => deletePath(path.id)}>Delete</button>
-              </li>
-            ))}
+            {paths.map((path) => {
+              const user = users.find((u) => u.id === path.user_id);
+              return (
+                <li key={path.id}>
+                  <strong>User:</strong> {user ? user.name : "Unknown"} |{" "}
+                  <strong>Misfit:</strong> {path.misfit} |{" "}
+                  <strong>Flow:</strong> {path.flow}
+                  <button onClick={() => deletePath(path.id)}>Delete</button>
+                </li>
+              );
+            })}
           </ul>
         </section>
       </div>
