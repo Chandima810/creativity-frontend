@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./App.css";
-import logo from "./assets/logo.png"; // Add your logo path here
+import logo from "./assets/logo.png"; // <-- Make sure logo.png exists in src/assets/
 
 function App() {
-  const backendUrl = process.env.REACT_APP_BACKEND_URL; // Example: https://creativity-backend.onrender.com/api
+  const backendUrl = process.env.REACT_APP_BACKEND_URL; // Example: https://creativity-backend.onrender.com
+  const ADMIN_PASSWORD = "WaterMinds@2025"; // Change this anytime
 
-  // ===== USERS STATE =====
+  // ===== STATES =====
+  const [isAdmin, setIsAdmin] = useState(false);
   const [users, setUsers] = useState([]);
   const [userForm, setUserForm] = useState({
     name: "",
@@ -15,7 +17,6 @@ function App() {
     discipline: "",
   });
 
-  // ===== CREATIVITY PATHS STATE =====
   const [paths, setPaths] = useState([]);
   const [pathForm, setPathForm] = useState({
     user_id: "",
@@ -30,9 +31,6 @@ function App() {
     ahh: "",
   });
 
-  // ===== Highlight newly added path =====
-  const [highlightedPathId, setHighlightedPathId] = useState(null);
-
   // ===== FETCH USERS =====
   const fetchUsers = async () => {
     try {
@@ -43,7 +41,7 @@ function App() {
     }
   };
 
-  // ===== FETCH CREATIVITY PATHS =====
+  // ===== FETCH PATHS =====
   const fetchPaths = async () => {
     try {
       const res = await axios.get(`${backendUrl}/creativity-paths`);
@@ -53,13 +51,28 @@ function App() {
     }
   };
 
-  // Fetch data on mount
   useEffect(() => {
     fetchUsers();
     fetchPaths();
   }, []);
 
-  // ===== HANDLE FORM CHANGES =====
+  // ===== LOGIN / LOGOUT =====
+  const handleLogin = () => {
+    const input = prompt("Enter admin password:");
+    if (input === ADMIN_PASSWORD) {
+      setIsAdmin(true);
+      alert("Admin access granted!");
+    } else {
+      alert("Incorrect password!");
+    }
+  };
+
+  const handleLogout = () => {
+    setIsAdmin(false);
+    alert("You have logged out successfully.");
+  };
+
+  // ===== FORM HANDLERS =====
   const handleUserChange = (e) => {
     setUserForm({ ...userForm, [e.target.name]: e.target.value });
   };
@@ -71,6 +84,10 @@ function App() {
   // ===== ADD USER =====
   const addUser = async (e) => {
     e.preventDefault();
+    if (!isAdmin) {
+      alert("Admin login required to add a user!");
+      return;
+    }
     try {
       await axios.post(`${backendUrl}/users`, userForm);
       setUserForm({ name: "", email: "", contact_number: "", discipline: "" });
@@ -82,6 +99,11 @@ function App() {
 
   // ===== DELETE USER =====
   const deleteUser = async (id) => {
+    if (!isAdmin) {
+      alert("Admin login required to delete a user!");
+      return;
+    }
+    if (!window.confirm("Are you sure you want to delete this user?")) return;
     try {
       await axios.delete(`${backendUrl}/users/${id}`);
       fetchUsers();
@@ -90,11 +112,15 @@ function App() {
     }
   };
 
-  // ===== ADD CREATIVITY PATH =====
+  // ===== ADD PATH =====
   const addPath = async (e) => {
     e.preventDefault();
+    if (!isAdmin) {
+      alert("Admin login required to add a creativity path!");
+      return;
+    }
     try {
-      const res = await axios.post(`${backendUrl}/creativity-paths`, pathForm);
+      await axios.post(`${backendUrl}/creativity-paths`, pathForm);
       setPathForm({
         user_id: "",
         misfit: "",
@@ -108,17 +134,18 @@ function App() {
         ahh: "",
       });
       fetchPaths();
-
-      // Highlight newly added row
-      setHighlightedPathId(res.data.id);
-      setTimeout(() => setHighlightedPathId(null), 3000);
     } catch (err) {
       console.error("Error adding path:", err.message);
     }
   };
 
-  // ===== DELETE CREATIVITY PATH =====
+  // ===== DELETE PATH =====
   const deletePath = async (id) => {
+    if (!isAdmin) {
+      alert("Admin login required to delete a creativity path!");
+      return;
+    }
+    if (!window.confirm("Are you sure you want to delete this path?")) return;
     try {
       await axios.delete(`${backendUrl}/creativity-paths/${id}`);
       fetchPaths();
@@ -129,44 +156,31 @@ function App() {
 
   return (
     <div className="App">
-      <div className="App-container">
-        {/* ===== Logo ===== */}
-        <div className="logo-container">
-          <img src={logo} alt="Logo" className="app-logo" />
-        </div>
-
+      {/* ===== HEADER ===== */}
+      <div className="header">
+        <img src={logo} alt="Logo" className="logo" />
         <h1>Creativity App</h1>
+        <div className="admin-controls">
+          {isAdmin ? (
+            <>
+              <span className="admin-note">Admin Access Active</span>
+              <button onClick={handleLogout} className="logout-btn">Logout</button>
+            </>
+          ) : (
+            <button onClick={handleLogin} className="login-btn">Admin Login</button>
+          )}
+        </div>
+      </div>
 
+      <div className="App-container">
         {/* ===== USERS SECTION ===== */}
         <section className="users-section">
           <h2>Users</h2>
           <form onSubmit={addUser}>
-            <input
-              name="name"
-              value={userForm.name}
-              onChange={handleUserChange}
-              placeholder="Name"
-              required
-            />
-            <input
-              name="email"
-              value={userForm.email}
-              onChange={handleUserChange}
-              placeholder="Email"
-              required
-            />
-            <input
-              name="contact_number"
-              value={userForm.contact_number}
-              onChange={handleUserChange}
-              placeholder="Contact Number"
-            />
-            <input
-              name="discipline"
-              value={userForm.discipline}
-              onChange={handleUserChange}
-              placeholder="Discipline"
-            />
+            <input name="name" value={userForm.name} onChange={handleUserChange} placeholder="Name" required />
+            <input name="email" value={userForm.email} onChange={handleUserChange} placeholder="Email" required />
+            <input name="contact_number" value={userForm.contact_number} onChange={handleUserChange} placeholder="Contact Number" />
+            <input name="discipline" value={userForm.discipline} onChange={handleUserChange} placeholder="Discipline" />
             <button type="submit">Add User</button>
           </form>
 
@@ -174,7 +188,9 @@ function App() {
             {users.map((user) => (
               <li key={user.id}>
                 {user.name} ({user.email})
-                <button onClick={() => deleteUser(user.id)}>Delete</button>
+                {isAdmin && (
+                  <button onClick={() => deleteUser(user.id)}>Delete</button>
+                )}
               </li>
             ))}
           </ul>
@@ -184,12 +200,7 @@ function App() {
         <section className="paths-section">
           <h2>Creativity Paths</h2>
           <form onSubmit={addPath}>
-            <select
-              name="user_id"
-              value={pathForm.user_id}
-              onChange={handlePathChange}
-              required
-            >
+            <select name="user_id" value={pathForm.user_id} onChange={handlePathChange} required>
               <option value="">-- Select User --</option>
               {users.map((user) => (
                 <option key={user.id} value={user.id}>
@@ -197,65 +208,18 @@ function App() {
                 </option>
               ))}
             </select>
-
-            <input
-              name="misfit"
-              value={pathForm.misfit}
-              onChange={handlePathChange}
-              placeholder="Misfit"
-            />
-            <input
-              name="recall"
-              value={pathForm.recall}
-              onChange={handlePathChange}
-              placeholder="Recall"
-            />
-            <input
-              name="flow"
-              value={pathForm.flow}
-              onChange={handlePathChange}
-              placeholder="Flow"
-            />
-            <input
-              name="wide_path"
-              value={pathForm.wide_path}
-              onChange={handlePathChange}
-              placeholder="Wide Path"
-            />
-            <input
-              name="spark"
-              value={pathForm.spark}
-              onChange={handlePathChange}
-              placeholder="Spark"
-            />
-            <input
-              name="strategic_flow"
-              value={pathForm.strategic_flow}
-              onChange={handlePathChange}
-              placeholder="Strategic Flow"
-            />
-            <input
-              name="narrow_path"
-              value={pathForm.narrow_path}
-              onChange={handlePathChange}
-              placeholder="Narrow Path"
-            />
-            <input
-              name="bright_spark"
-              value={pathForm.bright_spark}
-              onChange={handlePathChange}
-              placeholder="Bright Spark"
-            />
-            <input
-              name="ahh"
-              value={pathForm.ahh}
-              onChange={handlePathChange}
-              placeholder="Ahh"
-            />
+            <input name="misfit" value={pathForm.misfit} onChange={handlePathChange} placeholder="Misfit" />
+            <input name="recall" value={pathForm.recall} onChange={handlePathChange} placeholder="Recall" />
+            <input name="flow" value={pathForm.flow} onChange={handlePathChange} placeholder="Flow" />
+            <input name="wide_path" value={pathForm.wide_path} onChange={handlePathChange} placeholder="Wide Path" />
+            <input name="spark" value={pathForm.spark} onChange={handlePathChange} placeholder="Spark" />
+            <input name="strategic_flow" value={pathForm.strategic_flow} onChange={handlePathChange} placeholder="Strategic Flow" />
+            <input name="narrow_path" value={pathForm.narrow_path} onChange={handlePathChange} placeholder="Narrow Path" />
+            <input name="bright_spark" value={pathForm.bright_spark} onChange={handlePathChange} placeholder="Bright Spark" />
+            <input name="ahh" value={pathForm.ahh} onChange={handlePathChange} placeholder="Ahh" />
             <button type="submit">Add Path</button>
           </form>
 
-          {/* ===== Paths Table ===== */}
           <table className="paths-table">
             <thead>
               <tr>
@@ -269,17 +233,14 @@ function App() {
                 <th>Narrow Path</th>
                 <th>Bright Spark</th>
                 <th>Ahh</th>
-                <th>Actions</th>
+                {isAdmin && <th>Action</th>}
               </tr>
             </thead>
             <tbody>
               {paths.map((path) => {
                 const user = users.find((u) => u.id === path.user_id);
                 return (
-                  <tr
-                    key={path.id}
-                    className={path.id === highlightedPathId ? "highlight-row" : ""}
-                  >
+                  <tr key={path.id}>
                     <td>{user ? user.name : "Unknown"}</td>
                     <td>{path.misfit}</td>
                     <td>{path.recall}</td>
@@ -290,9 +251,11 @@ function App() {
                     <td>{path.narrow_path}</td>
                     <td>{path.bright_spark}</td>
                     <td>{path.ahh}</td>
-                    <td>
-                      <button onClick={() => deletePath(path.id)}>Delete</button>
-                    </td>
+                    {isAdmin && (
+                      <td>
+                        <button onClick={() => deletePath(path.id)}>Delete</button>
+                      </td>
+                    )}
                   </tr>
                 );
               })}
@@ -300,9 +263,15 @@ function App() {
           </table>
         </section>
 
-        {/* ===== Footer ===== */}
-        <footer className="app-footer">
-          &copy; Chandima Gunasena | <a href="https://solutionswaterminds.com" target="_blank" rel="noopener noreferrer">solutionswaterminds.com</a> | Tel: 0777181928, 0716287419
+        {/* ===== FOOTER ===== */}
+        <footer className="footer">
+          <p>
+            © {new Date().getFullYear()} Chandima Gunasena |{" "}
+            <a href="https://solutionswaterminds.com" target="_blank" rel="noopener noreferrer">
+              solutionswaterminds.com
+            </a>{" "}
+            | Tel: 0777181928 / 0716287419
+          </p>
         </footer>
       </div>
     </div>
