@@ -91,7 +91,34 @@ form button:hover {
   transform: translateY(-1px);
 }
 
-/* ===== Users & Paths Lists ===== */
+/* ===== Clear Entries Button ===== */
+.clear-btn {
+  display: block;
+  margin: 0 auto 8px auto;
+  padding: 8px 14px;
+  background-color: #ff9800;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+.clear-btn:hover {
+  background-color: #e68a00;
+}
+
+/* ===== Clear Note ===== */
+.clear-note {
+  font-size: 12px;
+  color: #555;
+  text-align: center;
+  margin-bottom: 15px;
+  line-height: 1.4;
+}
+
+/* ===== Users List ===== */
 .users-list {
   list-style: none;
   padding: 0;
@@ -105,16 +132,28 @@ form button:hover {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.5s ease;
 }
 
 .users-list li:hover {
   background-color: #e2e8f0;
 }
 
-/* ===== List Buttons ===== */
+/* ===== Highlight Newly Added User ===== */
+.highlight-user {
+  background-color: #d1e7ff !important;
+  animation: fadeHighlight 2s forwards;
+}
+
+/* ===== Clear Animation ===== */
+.clear-animate {
+  background-color: #ffe0b2 !important;
+  animation: fadeClear 1.5s forwards;
+}
+
+/* ===== Buttons inside lists ===== */
 .users-list button,
-.paths-list button {
+.paths-table td button {
   background-color: #ff4d4f;
   color: #fff;
   border: none;
@@ -126,7 +165,7 @@ form button:hover {
 }
 
 .users-list button:hover,
-.paths-list button:hover {
+.paths-table td button:hover {
   background-color: #d9363e;
 }
 
@@ -151,43 +190,21 @@ form button:hover {
   font-weight: 600;
 }
 
-.paths-table td button {
-  padding: 3px 6px;
-  font-size: 12px;
-  border-radius: 4px;
-}
-
-/* Highlight newly added row */
+/* ===== Highlight Newly Added Path Row ===== */
 .highlight-row {
   background-color: #d1e7ff !important;
-  transition: background-color 0.5s ease;
+  animation: fadeHighlight 2s forwards;
 }
 
-/* ===== Admin Section (Password & Logout) ===== */
-.admin-note {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 12px;
-  font-size: 14px;
-  color: #007bff;
-  margin-bottom: 20px;
+/* ===== Fade Animations ===== */
+@keyframes fadeHighlight {
+  0% { background-color: #d1e7ff; }
+  100% { background-color: inherit; }
 }
 
-.logout-btn {
-  background-color: #ff4d4f;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  padding: 6px 12px;
-  cursor: pointer;
-  font-size: 13px;
-  transition: background-color 0.3s ease, transform 0.1s ease;
-}
-
-.logout-btn:hover {
-  background-color: #d9363e;
-  transform: translateY(-1px);
+@keyframes fadeClear {
+  0% { background-color: #ffe0b2; }
+  100% { background-color: inherit; }
 }
 
 /* ===== Footer ===== */
@@ -238,10 +255,5 @@ form button:hover {
 
   .app-logo {
     max-width: 120px;
-  }
-
-  .admin-note {
-    flex-direction: column;
-    gap: 6px;
   }
 }

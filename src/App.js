@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import logo from "./assets/logo.png";
 import "./App.css";
-import logo from "./assets/logo.png"; // <-- Make sure logo.png exists in src/assets/
 
 function App() {
-  const backendUrl = process.env.REACT_APP_BACKEND_URL; // Example: https://creativity-backend.onrender.com
-  const ADMIN_PASSWORD = "WaterMinds@2025"; // Change this anytime
+  const backendUrl = process.env.REACT_APP_BACKEND_URL; // e.g., https://creativity-backend.onrender.com/api
 
-  // ===== STATES =====
+  // ===== ADMIN PASSWORD =====
+  const ADMIN_PASSWORD = "admin123"; // You can change this
   const [isAdmin, setIsAdmin] = useState(false);
+  const [password, setPassword] = useState("");
+
+  // ===== USERS STATE =====
   const [users, setUsers] = useState([]);
   const [userForm, setUserForm] = useState({
     name: "",
@@ -16,7 +19,9 @@ function App() {
     contact_number: "",
     discipline: "",
   });
+  const [newlyAddedUsers, setNewlyAddedUsers] = useState([]);
 
+  // ===== CREATIVITY PATHS STATE =====
   const [paths, setPaths] = useState([]);
   const [pathForm, setPathForm] = useState({
     user_id: "",
@@ -30,6 +35,7 @@ function App() {
     bright_spark: "",
     ahh: "",
   });
+  const [newlyAddedPaths, setNewlyAddedPaths] = useState([]);
 
   // ===== FETCH USERS =====
   const fetchUsers = async () => {
@@ -41,7 +47,7 @@ function App() {
     }
   };
 
-  // ===== FETCH PATHS =====
+  // ===== FETCH CREATIVITY PATHS =====
   const fetchPaths = async () => {
     try {
       const res = await axios.get(`${backendUrl}/creativity-paths`);
@@ -56,23 +62,7 @@ function App() {
     fetchPaths();
   }, []);
 
-  // ===== LOGIN / LOGOUT =====
-  const handleLogin = () => {
-    const input = prompt("Enter admin password:");
-    if (input === ADMIN_PASSWORD) {
-      setIsAdmin(true);
-      alert("Admin access granted!");
-    } else {
-      alert("Incorrect password!");
-    }
-  };
-
-  const handleLogout = () => {
-    setIsAdmin(false);
-    alert("You have logged out successfully.");
-  };
-
-  // ===== FORM HANDLERS =====
+  // ===== HANDLE FORM CHANGES =====
   const handleUserChange = (e) => {
     setUserForm({ ...userForm, [e.target.name]: e.target.value });
   };
@@ -81,16 +71,27 @@ function App() {
     setPathForm({ ...pathForm, [e.target.name]: e.target.value });
   };
 
+  const handlePasswordChange = (e) => setPassword(e.target.value);
+
+  // ===== LOGIN & LOGOUT =====
+  const handleLogin = () => {
+    if (password === ADMIN_PASSWORD) {
+      setIsAdmin(true);
+      setPassword("");
+    } else {
+      alert("Incorrect password!");
+    }
+  };
+
+  const handleLogout = () => setIsAdmin(false);
+
   // ===== ADD USER =====
   const addUser = async (e) => {
     e.preventDefault();
-    if (!isAdmin) {
-      alert("Admin login required to add a user!");
-      return;
-    }
     try {
-      await axios.post(`${backendUrl}/users`, userForm);
+      const res = await axios.post(`${backendUrl}/users`, userForm);
       setUserForm({ name: "", email: "", contact_number: "", discipline: "" });
+      setNewlyAddedUsers((prev) => [...prev, res.data]);
       fetchUsers();
     } catch (err) {
       console.error("Error adding user:", err.message);
@@ -99,11 +100,6 @@ function App() {
 
   // ===== DELETE USER =====
   const deleteUser = async (id) => {
-    if (!isAdmin) {
-      alert("Admin login required to delete a user!");
-      return;
-    }
-    if (!window.confirm("Are you sure you want to delete this user?")) return;
     try {
       await axios.delete(`${backendUrl}/users/${id}`);
       fetchUsers();
@@ -112,15 +108,11 @@ function App() {
     }
   };
 
-  // ===== ADD PATH =====
+  // ===== ADD CREATIVITY PATH =====
   const addPath = async (e) => {
     e.preventDefault();
-    if (!isAdmin) {
-      alert("Admin login required to add a creativity path!");
-      return;
-    }
     try {
-      await axios.post(`${backendUrl}/creativity-paths`, pathForm);
+      const res = await axios.post(`${backendUrl}/creativity-paths`, pathForm);
       setPathForm({
         user_id: "",
         misfit: "",
@@ -133,19 +125,15 @@ function App() {
         bright_spark: "",
         ahh: "",
       });
+      setNewlyAddedPaths((prev) => [...prev, res.data]);
       fetchPaths();
     } catch (err) {
       console.error("Error adding path:", err.message);
     }
   };
 
-  // ===== DELETE PATH =====
+  // ===== DELETE CREATIVITY PATH =====
   const deletePath = async (id) => {
-    if (!isAdmin) {
-      alert("Admin login required to delete a creativity path!");
-      return;
-    }
-    if (!window.confirm("Are you sure you want to delete this path?")) return;
     try {
       await axios.delete(`${backendUrl}/creativity-paths/${id}`);
       fetchPaths();
@@ -154,25 +142,56 @@ function App() {
     }
   };
 
+  // ===== CLEAR MY ADDED ENTRIES =====
+  const clearMyEntries = async () => {
+    // Delete only newly added users
+    for (let u of newlyAddedUsers) {
+      await axios.delete(`${backendUrl}/users/${u.id}`);
+    }
+    setNewlyAddedUsers([]);
+    fetchUsers();
+
+    // Delete only newly added paths
+    for (let p of newlyAddedPaths) {
+      await axios.delete(`${backendUrl}/creativity-paths/${p.id}`);
+    }
+    setNewlyAddedPaths([]);
+    fetchPaths();
+  };
+
   return (
     <div className="App">
-      {/* ===== HEADER ===== */}
-      <div className="header">
-        <img src={logo} alt="Logo" className="logo" />
-        <h1>Creativity App</h1>
-        <div className="admin-controls">
-          {isAdmin ? (
-            <>
-              <span className="admin-note">Admin Access Active</span>
-              <button onClick={handleLogout} className="logout-btn">Logout</button>
-            </>
-          ) : (
-            <button onClick={handleLogin} className="login-btn">Admin Login</button>
-          )}
-        </div>
-      </div>
-
       <div className="App-container">
+        {/* Logo */}
+        <div className="logo-container">
+          <img src={logo} alt="App Logo" className="app-logo" />
+        </div>
+
+        <h1>Creativity App</h1>
+
+        {/* ===== ADMIN LOGIN ===== */}
+        {!isAdmin && (
+          <div style={{ textAlign: "center", marginBottom: "15px" }}>
+            <input
+              type="password"
+              placeholder="Enter Admin Password"
+              value={password}
+              onChange={handlePasswordChange}
+              style={{ marginRight: "8px", padding: "5px" }}
+            />
+            <button onClick={handleLogin}>Login as Admin</button>
+          </div>
+        )}
+
+        {isAdmin && (
+          <div style={{ textAlign: "center", marginBottom: "15px", fontWeight: "bold" }}>
+            Admin Mode Active
+            <button onClick={handleLogout} style={{ marginLeft: "10px", padding: "5px 10px" }}>
+              Logout
+            </button>
+          </div>
+        )}
+
         {/* ===== USERS SECTION ===== */}
         <section className="users-section">
           <h2>Users</h2>
@@ -184,13 +203,18 @@ function App() {
             <button type="submit">Add User</button>
           </form>
 
+          <button onClick={clearMyEntries} style={{ marginBottom: "8px" }}>Clear My Added Entries</button>
+          <p style={{ fontSize: "12px", color: "#555" }}>
+            Note: The 'Clear My Added Entries' button allows you to remove only the data you have just added in this session. 
+            This ensures that your original ideas remain private and protected under intellectual property principles. 
+            Use this feature to experiment, refine, or polish your content without affecting other users’ data.
+          </p>
+
           <ul className="users-list">
             {users.map((user) => (
               <li key={user.id}>
                 {user.name} ({user.email})
-                {isAdmin && (
-                  <button onClick={() => deleteUser(user.id)}>Delete</button>
-                )}
+                {isAdmin && <button onClick={() => deleteUser(user.id)}>Delete</button>}
               </li>
             ))}
           </ul>
@@ -239,8 +263,9 @@ function App() {
             <tbody>
               {paths.map((path) => {
                 const user = users.find((u) => u.id === path.user_id);
+                const isNew = newlyAddedPaths.some((p) => p.id === path.id);
                 return (
-                  <tr key={path.id}>
+                  <tr key={path.id} className={isNew ? "highlight-row" : ""}>
                     <td>{user ? user.name : "Unknown"}</td>
                     <td>{path.misfit}</td>
                     <td>{path.recall}</td>
@@ -251,11 +276,7 @@ function App() {
                     <td>{path.narrow_path}</td>
                     <td>{path.bright_spark}</td>
                     <td>{path.ahh}</td>
-                    {isAdmin && (
-                      <td>
-                        <button onClick={() => deletePath(path.id)}>Delete</button>
-                      </td>
-                    )}
+                    {isAdmin && <td><button onClick={() => deletePath(path.id)}>Delete</button></td>}
                   </tr>
                 );
               })}
@@ -263,16 +284,10 @@ function App() {
           </table>
         </section>
 
-        {/* ===== FOOTER ===== */}
-        <footer className="footer">
-          <p>
-            © {new Date().getFullYear()} Chandima Gunasena |{" "}
-            <a href="https://solutionswaterminds.com" target="_blank" rel="noopener noreferrer">
-              solutionswaterminds.com
-            </a>{" "}
-            | Tel: 0777181928 / 0716287419
-          </p>
-        </footer>
+        {/* ===== Footer ===== */}
+        <div className="app-footer">
+          &copy; Chandima Gunasena | <a href="https://solutionswaterminds.com" target="_blank" rel="noopener noreferrer">solutionswaterminds.com</a> | Tel: 0777181928 / 0716287419
+        </div>
       </div>
     </div>
   );
