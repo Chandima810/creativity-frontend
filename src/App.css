@@ -4,16 +4,22 @@
   background-color: #f4f7f9;
   padding: 20px;
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 /* ===== Main content container ===== */
 .App-container {
   max-width: 1000px;
-  margin: 0 auto;
+  width: 100%;
   background-color: #ffffff;
   padding: 25px 35px;
   border-radius: 14px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 /* ===== Logo ===== */
@@ -45,12 +51,17 @@ h2 {
 
 /* ===== Section styling ===== */
 .users-section,
-.paths-section {
+.paths-section,
+.supportive-doc-section {
+  width: 100%;
   margin-bottom: 40px;
   padding: 20px;
   background-color: #fafbfd;
   border-radius: 10px;
   border: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 /* ===== Form styles ===== */
@@ -59,6 +70,7 @@ form {
   flex-wrap: wrap;
   gap: 10px;
   margin-bottom: 20px;
+  justify-content: center;
 }
 
 form input,
@@ -91,37 +103,11 @@ form button:hover {
   transform: translateY(-1px);
 }
 
-/* ===== Clear Entries Button ===== */
-.clear-btn {
-  display: block;
-  margin: 0 auto 8px auto;
-  padding: 8px 14px;
-  background-color: #ff9800;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.3s ease;
-}
-
-.clear-btn:hover {
-  background-color: #e68a00;
-}
-
-/* ===== Clear Note ===== */
-.clear-note {
-  font-size: 12px;
-  color: #555;
-  text-align: center;
-  margin-bottom: 15px;
-  line-height: 1.4;
-}
-
-/* ===== Users List ===== */
+/* ===== Users & Paths Lists ===== */
 .users-list {
   list-style: none;
   padding: 0;
+  width: 100%;
 }
 
 .users-list li {
@@ -132,28 +118,16 @@ form button:hover {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  transition: background-color 0.5s ease;
+  transition: background-color 0.2s ease;
 }
 
 .users-list li:hover {
   background-color: #e2e8f0;
 }
 
-/* ===== Highlight Newly Added User ===== */
-.highlight-user {
-  background-color: #d1e7ff !important;
-  animation: fadeHighlight 2s forwards;
-}
-
-/* ===== Clear Animation ===== */
-.clear-animate {
-  background-color: #ffe0b2 !important;
-  animation: fadeClear 1.5s forwards;
-}
-
-/* ===== Buttons inside lists ===== */
+/* ===== List Buttons ===== */
 .users-list button,
-.paths-table td button {
+.paths-list button {
   background-color: #ff4d4f;
   color: #fff;
   border: none;
@@ -165,8 +139,20 @@ form button:hover {
 }
 
 .users-list button:hover,
-.paths-table td button:hover {
+.paths-list button:hover {
   background-color: #d9363e;
+}
+
+/* ===== Highlighted note for Clear My Added Entries ===== */
+.clear-note {
+  font-size: 12px;
+  color: #555;
+  background-color: #e6f2ff;
+  padding: 10px 12px;
+  border-radius: 6px;
+  text-align: center;
+  margin-bottom: 10px;
+  width: 100%;
 }
 
 /* ===== Creativity Paths Table ===== */
@@ -190,21 +176,45 @@ form button:hover {
   font-weight: 600;
 }
 
-/* ===== Highlight Newly Added Path Row ===== */
+.paths-table td button {
+  padding: 3px 6px;
+  font-size: 12px;
+  border-radius: 4px;
+}
+
+/* Highlight newly added row */
 .highlight-row {
   background-color: #d1e7ff !important;
-  animation: fadeHighlight 2s forwards;
+  transition: background-color 0.5s ease;
 }
 
-/* ===== Fade Animations ===== */
-@keyframes fadeHighlight {
-  0% { background-color: #d1e7ff; }
-  100% { background-color: inherit; }
+/* ===== Supportive Document ===== */
+.supportive-doc-section h2 {
+  text-align: center;
+  margin-bottom: 10px;
 }
 
-@keyframes fadeClear {
-  0% { background-color: #ffe0b2; }
-  100% { background-color: inherit; }
+.supportive-doc-section p {
+  text-align: center;
+  font-size: 14px;
+}
+
+.supportive-doc-section a {
+  color: #007bff;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.supportive-doc-section a:hover {
+  text-decoration: underline;
+}
+
+/* Small PDF icon inside link */
+.pdf-icon {
+  width: 16px;
+  height: 16px;
 }
 
 /* ===== Footer ===== */

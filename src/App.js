@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react"; 
 import axios from "axios";
 import logo from "./assets/logo.png";
+import supportiveDoc from "./assets/Creativity_Brain Pathways.pdf"; // <-- Added PDF import
 import "./App.css";
 
 function App() {
@@ -63,14 +64,8 @@ function App() {
   }, []);
 
   // ===== HANDLE FORM CHANGES =====
-  const handleUserChange = (e) => {
-    setUserForm({ ...userForm, [e.target.name]: e.target.value });
-  };
-
-  const handlePathChange = (e) => {
-    setPathForm({ ...pathForm, [e.target.name]: e.target.value });
-  };
-
+  const handleUserChange = (e) => setUserForm({ ...userForm, [e.target.name]: e.target.value });
+  const handlePathChange = (e) => setPathForm({ ...pathForm, [e.target.name]: e.target.value });
   const handlePasswordChange = (e) => setPassword(e.target.value);
 
   // ===== LOGIN & LOGOUT =====
@@ -82,7 +77,6 @@ function App() {
       alert("Incorrect password!");
     }
   };
-
   const handleLogout = () => setIsAdmin(false);
 
   // ===== ADD USER =====
@@ -144,17 +138,11 @@ function App() {
 
   // ===== CLEAR MY ADDED ENTRIES =====
   const clearMyEntries = async () => {
-    // Delete only newly added users
-    for (let u of newlyAddedUsers) {
-      await axios.delete(`${backendUrl}/users/${u.id}`);
-    }
+    for (let u of newlyAddedUsers) await axios.delete(`${backendUrl}/users/${u.id}`);
     setNewlyAddedUsers([]);
     fetchUsers();
 
-    // Delete only newly added paths
-    for (let p of newlyAddedPaths) {
-      await axios.delete(`${backendUrl}/creativity-paths/${p.id}`);
-    }
+    for (let p of newlyAddedPaths) await axios.delete(`${backendUrl}/creativity-paths/${p.id}`);
     setNewlyAddedPaths([]);
     fetchPaths();
   };
@@ -282,6 +270,16 @@ function App() {
               })}
             </tbody>
           </table>
+        </section>
+
+        {/* ===== Supportive Document Section ===== */}
+        <section className="supportive-doc-section">
+          <h2>Supportive Document</h2>
+          <p>
+            <a href={supportiveDoc} target="_blank" rel="noopener noreferrer">
+              Click here to open the Creativity Brain Pathways PDF
+            </a>
+          </p>
         </section>
 
         {/* ===== Footer ===== */}
