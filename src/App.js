@@ -49,7 +49,6 @@ function App() {
     }
   };
 
-  // Fetch data on mount
   useEffect(() => {
     fetchUsers();
     fetchPaths();
@@ -171,7 +170,6 @@ function App() {
         <section className="paths-section">
           <h2>Creativity Paths</h2>
           <form onSubmit={addPath}>
-            {/* User Selection Dropdown */}
             <select
               name="user_id"
               value={pathForm.user_id}
@@ -248,9 +246,16 @@ function App() {
               const user = users.find((u) => u.id === path.user_id);
               return (
                 <li key={path.id}>
-                  <strong>User:</strong> {user ? user.name : "Unknown"} |{" "}
-                  <strong>Misfit:</strong> {path.misfit} |{" "}
-                  <strong>Flow:</strong> {path.flow}
+                  <strong>User:</strong> {user ? user.name : "Unknown"}<br />
+                  <strong>Misfit:</strong> {path.misfit}<br />
+                  <strong>Recall:</strong> {path.recall}<br />
+                  <strong>Flow:</strong> {path.flow}<br />
+                  <strong>Wide Path:</strong> {path.wide_path}<br />
+                  <strong>Spark:</strong> {path.spark}<br />
+                  <strong>Strategic Flow:</strong> {path.strategic_flow}<br />
+                  <strong>Narrow Path:</strong> {path.narrow_path}<br />
+                  <strong>Bright Spark:</strong> {path.bright_spark}<br />
+                  <strong>Ahh:</strong> {path.ahh}<br />
                   <button onClick={() => deletePath(path.id)}>Delete</button>
                 </li>
               );
