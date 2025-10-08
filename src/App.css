@@ -16,6 +16,18 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
+/* ===== Logo ===== */
+.logo-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+
+.app-logo {
+  max-width: 150px;
+  height: auto;
+}
+
 /* ===== Headings ===== */
 h1 {
   text-align: center;
@@ -80,14 +92,12 @@ form button:hover {
 }
 
 /* ===== Users & Paths Lists ===== */
-.users-list,
-.paths-list {
+.users-list {
   list-style: none;
   padding: 0;
 }
 
-.users-list li,
-.paths-list li {
+.users-list li {
   background-color: #f0f4f8;
   margin-bottom: 8px;
   padding: 10px 12px;
@@ -98,8 +108,7 @@ form button:hover {
   transition: background-color 0.2s ease;
 }
 
-.users-list li:hover,
-.paths-list li:hover {
+.users-list li:hover {
   background-color: #e2e8f0;
 }
 
@@ -121,9 +130,54 @@ form button:hover {
   background-color: #d9363e;
 }
 
-/* ===== Optional: make user name and labels clearer ===== */
-.paths-list strong {
+/* ===== Creativity Paths Table ===== */
+.paths-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+.paths-table th,
+.paths-table td {
+  border: 1px solid #ccc;
+  padding: 8px 10px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.paths-table th {
+  background-color: #007bff;
+  color: #fff;
+  font-weight: 600;
+}
+
+.paths-table td button {
+  padding: 3px 6px;
+  font-size: 12px;
+  border-radius: 4px;
+}
+
+/* Highlight newly added row */
+.highlight-row {
+  background-color: #d1e7ff !important;
+  transition: background-color 0.5s ease;
+}
+
+/* ===== Footer ===== */
+.app-footer {
+  text-align: center;
+  margin-top: 40px;
+  font-size: 14px;
+  color: #555;
+}
+
+.app-footer a {
   color: #007bff;
+  text-decoration: none;
+}
+
+.app-footer a:hover {
+  text-decoration: underline;
 }
 
 /* ===== Responsive adjustments ===== */
@@ -147,5 +201,15 @@ form button:hover {
   .users-list button,
   .paths-list button {
     margin-top: 6px;
+  }
+
+  .paths-table th,
+  .paths-table td {
+    font-size: 12px;
+    padding: 6px 8px;
+  }
+
+  .app-logo {
+    max-width: 120px;
   }
 }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./App.css";
+import logo from "./assets/logo.png"; // Add your logo path here
 
 function App() {
   const backendUrl = process.env.REACT_APP_BACKEND_URL; // Example: https://creativity-backend.onrender.com/api
@@ -29,6 +30,9 @@ function App() {
     ahh: "",
   });
 
+  // ===== Highlight newly added path =====
+  const [highlightedPathId, setHighlightedPathId] = useState(null);
+
   // ===== FETCH USERS =====
   const fetchUsers = async () => {
     try {
@@ -49,6 +53,7 @@ function App() {
     }
   };
 
+  // Fetch data on mount
   useEffect(() => {
     fetchUsers();
     fetchPaths();
@@ -89,7 +94,7 @@ function App() {
   const addPath = async (e) => {
     e.preventDefault();
     try {
-      await axios.post(`${backendUrl}/creativity-paths`, pathForm);
+      const res = await axios.post(`${backendUrl}/creativity-paths`, pathForm);
       setPathForm({
         user_id: "",
         misfit: "",
@@ -103,6 +108,10 @@ function App() {
         ahh: "",
       });
       fetchPaths();
+
+      // Highlight newly added row
+      setHighlightedPathId(res.data.id);
+      setTimeout(() => setHighlightedPathId(null), 3000);
     } catch (err) {
       console.error("Error adding path:", err.message);
     }
@@ -121,6 +130,11 @@ function App() {
   return (
     <div className="App">
       <div className="App-container">
+        {/* ===== Logo ===== */}
+        <div className="logo-container">
+          <img src={logo} alt="Logo" className="app-logo" />
+        </div>
+
         <h1>Creativity App</h1>
 
         {/* ===== USERS SECTION ===== */}
@@ -241,27 +255,55 @@ function App() {
             <button type="submit">Add Path</button>
           </form>
 
-          <ul className="paths-list">
-            {paths.map((path) => {
-              const user = users.find((u) => u.id === path.user_id);
-              return (
-                <li key={path.id}>
-                  <strong>User:</strong> {user ? user.name : "Unknown"}<br />
-                  <strong>Misfit:</strong> {path.misfit}<br />
-                  <strong>Recall:</strong> {path.recall}<br />
-                  <strong>Flow:</strong> {path.flow}<br />
-                  <strong>Wide Path:</strong> {path.wide_path}<br />
-                  <strong>Spark:</strong> {path.spark}<br />
-                  <strong>Strategic Flow:</strong> {path.strategic_flow}<br />
-                  <strong>Narrow Path:</strong> {path.narrow_path}<br />
-                  <strong>Bright Spark:</strong> {path.bright_spark}<br />
-                  <strong>Ahh:</strong> {path.ahh}<br />
-                  <button onClick={() => deletePath(path.id)}>Delete</button>
-                </li>
-              );
-            })}
-          </ul>
+          {/* ===== Paths Table ===== */}
+          <table className="paths-table">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Misfit</th>
+                <th>Recall</th>
+                <th>Flow</th>
+                <th>Wide Path</th>
+                <th>Spark</th>
+                <th>Strategic Flow</th>
+                <th>Narrow Path</th>
+                <th>Bright Spark</th>
+                <th>Ahh</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {paths.map((path) => {
+                const user = users.find((u) => u.id === path.user_id);
+                return (
+                  <tr
+                    key={path.id}
+                    className={path.id === highlightedPathId ? "highlight-row" : ""}
+                  >
+                    <td>{user ? user.name : "Unknown"}</td>
+                    <td>{path.misfit}</td>
+                    <td>{path.recall}</td>
+                    <td>{path.flow}</td>
+                    <td>{path.wide_path}</td>
+                    <td>{path.spark}</td>
+                    <td>{path.strategic_flow}</td>
+                    <td>{path.narrow_path}</td>
+                    <td>{path.bright_spark}</td>
+                    <td>{path.ahh}</td>
+                    <td>
+                      <button onClick={() => deletePath(path.id)}>Delete</button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </section>
+
+        {/* ===== Footer ===== */}
+        <footer className="app-footer">
+          &copy; Chandima Gunasena | <a href="https://solutionswaterminds.com" target="_blank" rel="noopener noreferrer">solutionswaterminds.com</a> | Tel: 0777181928, 0716287419
+        </footer>
       </div>
     </div>
   );
